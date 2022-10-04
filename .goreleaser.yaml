@@ -57,7 +57,7 @@ brews:
     commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
 
     # Caveats for the user of your binary.
-    caveats: "To install shell completion add the following line to your #{shell_profile}:\n eval \"$(awswitch --completion-script-bash)\"\n\nRestart your terminal for the settings to take effect."
+    caveats: "To install shell completion add the following line to your #{shell_profile}:\n BASH:\n\teval \"$(awswitch --completion-script-bash)\"\nZSH:\n\teval \"$(awswitch --completion-script-zsh)\"\n\nRestart your terminal for the settings to take effect."
 
     # Your app's homepage.
     homepage: "https://github.com/joepurdy/awswitch/"

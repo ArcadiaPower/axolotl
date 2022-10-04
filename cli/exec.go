@@ -19,28 +19,26 @@ type ExecCommandInput struct {
 func ConfigureExecCommand(app *kingpin.Application, a *Awswitch) {
 	input := ExecCommandInput{}
 
-	cmd := app.Command("exec", "Execute a command with a different AWS profile and region")
-
-	cmd.Flag("profile", "The AWS profile to execute as").
+	app.Flag("profile", "The AWS profile to execute as").
 		Required().
 		Short('p').
 		HintAction(a.MustGetProfileNames).
 		StringVar(&input.ProfileName)
 
-	cmd.Flag("region", "The AWS region to execute to").
+	app.Flag("region", "The AWS region to execute to").
 		Default("us-east-1").
 		Short('r').
 		HintOptions("us-east-1", "us-west-2").
 		StringVar(&input.Region)
 
-	cmd.Arg("cmd", "The command to run, defaults to $SHELL").
+	app.Arg("cmd", "The command to run, defaults to $SHELL").
 		Default(os.Getenv("SHELL")).
 		StringVar(&input.Command)
 
-	cmd.Arg("args", "The arguments to pass to the command").
+	app.Arg("args", "The arguments to pass to the command").
 		StringsVar(&input.Args)
 
-	cmd.Action(func(c *kingpin.ParseContext) error {
+	app.Action(func(c *kingpin.ParseContext) error {
 		if os.Getenv("AWS_SWITCH") != "" {
 			return fmt.Errorf("awswitch sessions should be nested with care, unset AWS_SWITCH to force")
 		}

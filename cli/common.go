@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"io/ioutil"
+	"io"
 	"log"
 	"strings"
 
@@ -43,7 +43,7 @@ func ConfigureGlobals(app *kingpin.Application) *Awswitch {
 
 	app.PreAction(func(c *kingpin.ParseContext) error {
 		if !a.Debug {
-			log.SetOutput(ioutil.Discard)
+			log.SetOutput(io.Discard)
 		}
 
 		log.Printf("awswitch %s", app.Model().Version)
