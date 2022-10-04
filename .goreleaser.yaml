@@ -1,0 +1,77 @@
+builds:
+  - id: linux-build
+    binary: awswitch
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    # set the modified timestamp on the output binary to the git timestamp to ensure a reproducible build
+    mod_timestamp: &build-timestamp '{{ .CommitTimestamp }}'
+    env: &build-env
+      - CGO_ENABLED=0
+    ldflags: &build-ldflags |
+      -w
+      -s
+      -extldflags '-static'
+      -X github.com/joepurdy/awswitch/main.version={{.Version}}
+
+  - id: darwin-build
+    binary: awswitch
+    goos:
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    mod_timestamp: *build-timestamp
+    env: *build-env
+    ldflags: *build-ldflags
+
+archives:
+  - id: linux-archives
+    builds:
+      - linux-build
+
+  - id: darwin-archives
+    builds:
+      - darwin-build
+
+brews:
+  - name: awswitch
+
+    ids:
+      - darwin-archives
+      - linux-archives
+
+    # GOAMD64 to specify which amd64 version to use if there are multiple
+    # versions from the build section.
+    # Default is v1.
+    goamd64: v3
+
+    # GitHub repository to push the formula to
+    tap:
+      owner: joepurdy
+      name: brewpub
+
+    # The project name and current git tag are used in the format string.
+    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+
+    # Folder inside the repository to put the formula.
+    # Default is the root folder.
+    folder: brewskis
+
+    # Caveats for the user of your binary.
+    caveats: "To install shell completion add the following line to your #{shell_profile}:\n eval \"$(awswitch --completion-script-bash)\"\n\nRestart your terminal for the settings to take effect."
+
+    # Your app's homepage.
+    homepage: "https://github.com/joepurdy/awswitch/"
+
+    # Template of your app's description.
+    description: "A helper utility for switching AWS profiles in subshells."
+
+    # SPDX identifier of your app's license.
+    license: "MIT"
+
+    # So you can `brew test` your formula.
+    test: |
+      system "#{bin}/awswitch --version"
