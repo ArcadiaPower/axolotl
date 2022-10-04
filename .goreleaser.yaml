@@ -51,14 +51,10 @@ brews:
     # GitHub repository to push the formula to
     tap:
       owner: joepurdy
-      name: brewpub
+      name: homebrew-tap
 
     # The project name and current git tag are used in the format string.
     commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
-
-    # Folder inside the repository to put the formula.
-    # Default is the root folder.
-    folder: brewskis
 
     # Caveats for the user of your binary.
     caveats: "To install shell completion add the following line to your #{shell_profile}:\n eval \"$(awswitch --completion-script-bash)\"\n\nRestart your terminal for the settings to take effect."
