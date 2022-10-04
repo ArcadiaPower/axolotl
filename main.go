@@ -15,7 +15,8 @@ func main() {
 	app := kingpin.New("awswitch", "A helper utility for switching AWS profiles in subshells.")
 	app.Version(Version)
 
-	cli.ConfigureExecCommand(app, &cli.Awswitch{})
+	a := cli.ConfigureGlobals(app)
+	cli.ConfigureExecCommand(app, a)
 
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 }

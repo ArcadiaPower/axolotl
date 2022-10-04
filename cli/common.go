@@ -1,13 +1,16 @@
 package cli
 
 import (
+	"io/ioutil"
 	"log"
 	"strings"
 
 	"github.com/99designs/aws-vault/v6/vault"
+	"github.com/alecthomas/kingpin"
 )
 
 type Awswitch struct {
+	Debug         bool
 	awsConfigFile *vault.ConfigFile
 }
 
@@ -29,6 +32,26 @@ func (a *Awswitch) MustGetProfileNames() []string {
 		log.Fatalf("Error loading AWS config: %s", err.Error())
 	}
 	return config.ProfileNames()
+}
+
+// ConfigureGlobals sets up the global flags and returns the global config
+func ConfigureGlobals(app *kingpin.Application) *Awswitch {
+	a := &Awswitch{}
+
+	app.Flag("debug", "Show debugging output").
+		BoolVar(&a.Debug)
+
+	app.PreAction(func(c *kingpin.ParseContext) error {
+		if !a.Debug {
+			log.SetOutput(ioutil.Discard)
+		}
+
+		log.Printf("awswitch %s", app.Model().Version)
+
+		return nil
+	})
+
+	return a
 }
 
 // environ is a slice of environment variables in the form "key=value"
