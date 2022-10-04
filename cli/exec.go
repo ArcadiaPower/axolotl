@@ -34,7 +34,7 @@ func ConfigureExecCommand(app *kingpin.Application, a *Awswitch) {
 		StringVar(&input.Region)
 
 	cmd.Arg("cmd", "The command to run, defaults to $SHELL").
-		Default(os.Getenv("$SHELL")).
+		Default(os.Getenv("SHELL")).
 		StringVar(&input.Command)
 
 	cmd.Arg("args", "The arguments to pass to the command").
