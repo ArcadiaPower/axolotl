@@ -15,10 +15,13 @@ type ExecCommandInput struct {
 	Region      string
 	Command     string
 	Args        []string
+	Verify      bool
 }
 
 func ConfigureExecCommand(app *kingpin.Application, a *Awswitch) {
-	input := ExecCommandInput{}
+	input := ExecCommandInput{
+		Verify: a.autoGimmeAwsCreds,
+	}
 
 	app.Flag("profile", "The AWS profile to execute as").
 		Short('p').
@@ -58,6 +61,10 @@ func ExecCommand(input ExecCommandInput) error {
 	env.Set("AWS_PROFILE", input.ProfileName)
 	env.Set("AWS_REGION", input.Region)
 	env.Set("AWS_SWITCH", "42")
+
+	if err := AuthVerify(input.Verify, input.ProfileName); err != nil {
+		return err
+	}
 
 	argv0, err := osexec.LookPath(input.Command)
 	if err != nil {
