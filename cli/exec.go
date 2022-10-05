@@ -6,6 +6,7 @@ import (
 	"syscall"
 
 	"github.com/alecthomas/kingpin"
+	"github.com/c-bata/go-prompt"
 	osexec "golang.org/x/sys/execabs"
 )
 
@@ -20,7 +21,6 @@ func ConfigureExecCommand(app *kingpin.Application, a *Awswitch) {
 	input := ExecCommandInput{}
 
 	app.Flag("profile", "The AWS profile to execute as").
-		Required().
 		Short('p').
 		HintAction(a.MustGetProfileNames).
 		StringVar(&input.ProfileName)
@@ -41,6 +41,11 @@ func ConfigureExecCommand(app *kingpin.Application, a *Awswitch) {
 	app.Action(func(c *kingpin.ParseContext) error {
 		if os.Getenv("AWS_SWITCH") != "" {
 			return fmt.Errorf("awswitch sessions should be nested with care, unset AWS_SWITCH to force")
+		}
+
+		if input.ProfileName == "" {
+			fmt.Println("Please select profile.")
+			input.ProfileName = prompt.Input("> ", a.profileCompleter())
 		}
 
 		return ExecCommand(input)

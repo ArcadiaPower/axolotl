@@ -7,6 +7,7 @@ import (
 
 	"github.com/99designs/aws-vault/v6/vault"
 	"github.com/alecthomas/kingpin"
+	"github.com/c-bata/go-prompt"
 )
 
 type Awswitch struct {
@@ -72,4 +73,15 @@ func (e *environ) Unset(key string) {
 func (e *environ) Set(key, val string) {
 	e.Unset(key)
 	*e = append(*e, key+"="+val)
+}
+
+// profileCompleter returns a list of profile names
+func (a *Awswitch) profileCompleter() func(d prompt.Document) []prompt.Suggest {
+	return func(d prompt.Document) []prompt.Suggest {
+		s := []prompt.Suggest{}
+		for _, p := range a.MustGetProfileNames() {
+			s = append(s, prompt.Suggest{Text: p})
+		}
+		return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
+	}
 }
