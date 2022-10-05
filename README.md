@@ -1,6 +1,6 @@
 # awswitch
 
-![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/joepurdy/awswitch?style=for-the-badge)![GitHub](https://img.shields.io/github/license/joepurdy/awswitch?style=for-the-badge)
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/joepurdy/awswitch?style=for-the-badge)![GitHub release (latest by date)](https://img.shields.io/github/v/release/joepurdy/awswitch?style=for-the-badge)![GitHub](https://img.shields.io/github/license/joepurdy/awswitch?style=for-the-badge)
 
 awswitch is an opinionated CLI that minimally emulates the behavior of the `aws-vault exec` command to run ad-hoc commands or switch to a subshell of a specific AWS profiles on the fly.
 
