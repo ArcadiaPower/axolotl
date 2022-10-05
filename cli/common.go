@@ -127,8 +127,19 @@ func ConfigureGlobals(app *kingpin.Application) *Awswitch {
 		autoGimmeAwsCreds: viper.GetBool("autoGimmeAwsCreds"),
 	}
 
+	var (
+		noVerify bool
+		verify   bool
+	)
+
 	app.Flag("debug", "Show debugging output").
 		BoolVar(&a.Debug)
+
+	app.Flag("verify", "Enable automatic credentials with `gimme-aws-creds`").
+		BoolVar(&verify)
+
+	app.Flag("no-verify", "Disable automatic credentials with `gimme-aws-creds`").
+		BoolVar(&noVerify)
 
 	app.PreAction(func(c *kingpin.ParseContext) error {
 		if !a.Debug {
@@ -136,6 +147,24 @@ func ConfigureGlobals(app *kingpin.Application) *Awswitch {
 		}
 
 		log.Printf("awswitch %s", app.Model().Version)
+
+		if noVerify {
+			viper.Set("autoGimmeAwsCreds", false)
+			if err := viper.WriteConfig(); err != nil {
+				log.Fatalf("error writing config: %s", err.Error())
+			}
+			fmt.Println("Disabled automatic credentials with gimme-aws-creds")
+			os.Exit(0)
+		}
+
+		if verify {
+			viper.Set("autoGimmeAwsCreds", true)
+			if err := viper.WriteConfig(); err != nil {
+				log.Fatalf("error writing config: %s", err.Error())
+			}
+			fmt.Println("Enabled automatic credentials with gimme-aws-creds")
+			os.Exit(0)
+		}
 
 		return nil
 	})
