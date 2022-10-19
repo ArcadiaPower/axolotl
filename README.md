@@ -56,6 +56,10 @@ Execute a single command using a named profile:
 awswitch -p example-staging -- aws sts get-caller-identity
 ```
 
+### Profile Completion
+
+If you run `awswitch` without passing any arguments the tool provides autocomplete and tabcomplete functionality based on the profile names in your local `~/.aws/credentials` file or the file specified by the `$AWS_SHARED_CREDENTIALS_FILE` environment variable if set.
+
 ## Credit and Why Yet Another Tool
 
 This tool exists thanks to the inspiration of far greater utilities, specifically [aws-vault], [saml2aws], and [gimme-aws-creds]. It's born out of a need for a workflow to authenticate many AWS accounts via Okta SSO and solves a specific niche that the existing tools didn't quite cover. 

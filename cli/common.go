@@ -9,36 +9,45 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/99designs/aws-vault/v6/vault"
 	"github.com/alecthomas/kingpin"
 	"github.com/c-bata/go-prompt"
+	"github.com/joepurdy/awswitch/sdk/vault"
 	"github.com/spf13/viper"
 )
 
 type Awswitch struct {
-	Debug             bool
-	autoGimmeAwsCreds bool
-	awsConfigFile     *vault.ConfigFile
+	Debug              bool
+	autoGimmeAwsCreds  bool
+	awsCredentialsFile *vault.CredentialsFile
 }
 
-func (a *Awswitch) AwsConfigFile() (*vault.ConfigFile, error) {
-	if a.awsConfigFile == nil {
+func (a *Awswitch) AwsCredentialsFile() (*vault.CredentialsFile, error) {
+	if a.awsCredentialsFile == nil {
 		var err error
-		a.awsConfigFile, err = vault.LoadConfigFromEnv()
+		a.awsCredentialsFile, err = vault.LoadCredentialsFromEnv()
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	return a.awsConfigFile, nil
+	return a.awsCredentialsFile, nil
 }
 
 func (a *Awswitch) MustGetProfileNames() []string {
-	config, err := a.AwsConfigFile()
+	creds, err := a.AwsCredentialsFile()
 	if err != nil {
-		log.Fatalf("Error loading AWS config: %s", err.Error())
+		log.Fatalf("Error loading AWS credentials: %s", err.Error())
 	}
-	return config.ProfileNames()
+
+	// filter out DEFAULT profile
+	profileNames := []string{}
+	for _, profile := range creds.ProfileNames() {
+		if profile != "DEFAULT" {
+			profileNames = append(profileNames, profile)
+		}
+	}
+
+	return profileNames
 }
 
 // AuthVerify checks if the user is authenticated and if not authenticates
