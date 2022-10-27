@@ -8,6 +8,7 @@ require (
 	github.com/spf13/viper v1.13.0
 	github.com/stretchr/testify v1.8.0
 	golang.org/x/sys v0.0.0-20220928140112-f11e5e49a4ec
+	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1
 	gopkg.in/ini.v1 v1.67.0
 )
 

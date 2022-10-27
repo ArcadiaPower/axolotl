@@ -47,8 +47,10 @@ func ConfigureExecCommand(app *kingpin.Application, a *Awswitch) {
 		}
 
 		if input.ProfileName == "" {
+			saveTermState()
 			fmt.Println("Please select profile.")
 			input.ProfileName = prompt.Input("> ", a.profileCompleter())
+			restoreTermState()
 		}
 
 		return ExecCommand(input)

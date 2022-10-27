@@ -13,6 +13,7 @@ import (
 	"github.com/c-bata/go-prompt"
 	"github.com/joepurdy/awswitch/sdk/vault"
 	"github.com/spf13/viper"
+	"golang.org/x/term"
 )
 
 type Awswitch struct {
@@ -199,6 +200,27 @@ func (e *environ) Unset(key string) {
 func (e *environ) Set(key, val string) {
 	e.Unset(key)
 	*e = append(*e, key+"="+val)
+}
+
+// go-prompt has a bug that hijacks the terminal state breaking signal handling.
+// This function is a workaround to restore the terminal state until the bug is fixed.
+// See:
+// - https://github.com/c-bata/go-prompt/issues/233
+// - https://github.com/c-bata/go-prompt/pull/239
+var termState *term.State
+
+func saveTermState() {
+	oldState, err := term.GetState(int(os.Stdin.Fd()))
+	if err != nil {
+		return
+	}
+	termState = oldState
+}
+
+func restoreTermState() {
+	if termState != nil {
+		term.Restore(int(os.Stdin.Fd()), termState)
+	}
 }
 
 // profileCompleter returns a list of profile names
