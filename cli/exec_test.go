@@ -3,8 +3,8 @@ package cli_test
 import (
 	"testing"
 
+	"github.com/ArcadiaPower/awswitch/cli"
 	"github.com/alecthomas/kingpin"
-	"github.com/joepurdy/awswitch/cli"
 	"github.com/stretchr/testify/assert"
 )
 

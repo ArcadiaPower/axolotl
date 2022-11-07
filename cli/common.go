@@ -9,9 +9,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ArcadiaPower/awswitch/sdk/vault"
 	"github.com/alecthomas/kingpin"
 	"github.com/c-bata/go-prompt"
-	"github.com/joepurdy/awswitch/sdk/vault"
 	"github.com/spf13/viper"
 	"golang.org/x/term"
 )

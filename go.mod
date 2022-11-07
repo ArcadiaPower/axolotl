@@ -1,4 +1,4 @@
-module github.com/joepurdy/awswitch
+module github.com/ArcadiaPower/awswitch
 
 go 1.19
 

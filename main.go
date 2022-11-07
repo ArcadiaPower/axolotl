@@ -6,14 +6,14 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/joepurdy/awswitch/cli"
+	"github.com/ArcadiaPower/awswitch/cli"
 	"github.com/spf13/viper"
 
 	"github.com/alecthomas/kingpin"
 )
 
 // Version is provided at compile time
-var Version = "dev"
+var Version string
 
 func init() {
 	// initialize viper config
