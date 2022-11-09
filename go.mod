@@ -1,4 +1,4 @@
-module github.com/ArcadiaPower/awswitch
+module github.com/ArcadiaPower/axolotl
 
 go 1.19
 

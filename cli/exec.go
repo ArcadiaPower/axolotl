@@ -18,7 +18,7 @@ type ExecCommandInput struct {
 	Verify      bool
 }
 
-func ConfigureExecCommand(app *kingpin.Application, a *Awswitch) {
+func ConfigureExecCommand(app *kingpin.Application, a *Axolotl) {
 	input := ExecCommandInput{
 		Verify: a.autoGimmeAwsCreds,
 	}
@@ -42,8 +42,8 @@ func ConfigureExecCommand(app *kingpin.Application, a *Awswitch) {
 		StringsVar(&input.Args)
 
 	app.Action(func(c *kingpin.ParseContext) error {
-		if os.Getenv("AWS_SWITCH") != "" {
-			return fmt.Errorf("awswitch sessions should be nested with care, unset AWS_SWITCH to force")
+		if os.Getenv("AWS_AXOLOTL") != "" {
+			return fmt.Errorf("ax sessions should be nested with care, unset AWS_AXOLOTL to force")
 		}
 
 		if input.ProfileName == "" {
@@ -62,7 +62,7 @@ func ExecCommand(input ExecCommandInput) error {
 	env.Set("AWS_DEFAULT_PROFILE", input.ProfileName)
 	env.Set("AWS_PROFILE", input.ProfileName)
 	env.Set("AWS_REGION", input.Region)
-	env.Set("AWS_SWITCH", "42")
+	env.Set("AWS_AXOLOTL", "42")
 
 	if err := AuthVerify(input.Verify, input.ProfileName); err != nil {
 		return err

@@ -1,10 +1,10 @@
-# awswitch
+# axolotl
 
-![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/ArcadiaPower/awswitch?style=for-the-badge)![GitHub release (latest by date)](https://img.shields.io/github/v/release/ArcadiaPower/awswitch?style=for-the-badge)![GitHub](https://img.shields.io/github/license/ArcadiaPower/awswitch?style=for-the-badge)
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/ArcadiaPower/axolotl?style=for-the-badge)![GitHub release (latest by date)](https://img.shields.io/github/v/release/ArcadiaPower/axolotl?style=for-the-badge)![GitHub](https://img.shields.io/github/license/ArcadiaPower/axolotl?style=for-the-badge)
 
-awswitch is an opinionated CLI that minimally emulates the behavior of the `aws-vault exec` command to run ad-hoc commands or switch to a subshell of a specific AWS profiles on the fly.
+axolotl (`ax`) is an opinionated CLI that minimally emulates the behavior of the `aws-vault exec` command to run ad-hoc commands or switch to a subshell of a specific AWS profiles on the fly.
 
-Additionally, credentials are obtained automatically using `gimme-aws-creds` to make a simple one command workflow for switching AWS profiles and credentials. This behavior can be disabled by running `awswitch --no-verify` and re-enabled by `awswitch --verify`.
+Additionally, credentials are obtained automatically using `gimme-aws-creds` to make a simple one command workflow for switching AWS profiles and credentials. This behavior can be disabled by running `ax --no-verify` and re-enabled by `ax --verify`.
 
 ## Prerequisites
 
@@ -16,7 +16,7 @@ This is a Go CLI and as such can be installed the standard Go way if you have a 
 
 Install with `go install`
 ```bash
-go install github.com/ArcadiaPower/awswitch@latest
+go install github.com/ArcadiaPower/axolotl@latest
 ```
 
 __OR__
@@ -24,41 +24,41 @@ __OR__
 Install with homebrew
 ```bash
 brew tap ArcadiaPower/tap
-brew install awswitch
+brew install ArcadiaPower/tap/axolotl
 ```
 
 Note: Installing with homebrew has the added benefit of automatically installing `gimme-aws-creds` as a dependency if it wasn't already installed.
 
 ## Configuration
 
-The configuration file is created automatically at `$HOME/.config/awswitch/config.yaml` if it doesn't already exist. 
+The configuration file is created automatically at `$HOME/.config/ax/config.yaml` if it doesn't already exist. 
 - autogimmeawscreds - This enables automatic credential verification and acquisition with `gimme-aws-creds`, the default is true.
 
 ## Usage
 
 To switch to a named profile and the default AWS Region of `us-east-1`:
 ```bash
-awswitch --profile example-staging
+ax --profile example-staging
 ```
 
 To switch to a named profile and a custom AWS Region:
 ```bash
-awswitch --profile example-staging --region us-west-2
+ax --profile example-staging --region us-west-2
 ```
 
 Same as the last example, but use short flags:
 ```bash
-awswitch -p example-staging -r us-west-2
+ax -p example-staging -r us-west-2
 ```
 
 Execute a single command using a named profile:
 ```bash
-awswitch -p example-staging -- aws sts get-caller-identity
+ax -p example-staging -- aws sts get-caller-identity
 ```
 
 ### Profile Completion
 
-If you run `awswitch` without passing any arguments the tool provides autocomplete and tabcomplete functionality based on the profile names in your local `~/.aws/credentials` file or the file specified by the `$AWS_SHARED_CREDENTIALS_FILE` environment variable if set.
+If you run `ax` without passing any arguments the tool provides autocomplete and tabcomplete functionality based on the profile names in your local `~/.aws/credentials` file or the file specified by the `$AWS_SHARED_CREDENTIALS_FILE` environment variable if set.
 
 ## Credit and Why Yet Another Tool
 
@@ -70,7 +70,7 @@ I wanted the simplicity of the `aws-vault exec` command with the requirement for
 
 ## License
 
-awswitch is released under the [MIT License](https://opensource.org/licenses/MIT)
+ax is released under the [MIT License](https://opensource.org/licenses/MIT)
 
 [aws-vault]: https://github.com/99designs/aws-vault
 [saml2aws]: https://github.com/Versent/saml2aws

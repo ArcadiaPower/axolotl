@@ -9,20 +9,20 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ArcadiaPower/awswitch/sdk/vault"
+	"github.com/ArcadiaPower/axolotl/sdk/vault"
 	"github.com/alecthomas/kingpin"
 	"github.com/c-bata/go-prompt"
 	"github.com/spf13/viper"
 	"golang.org/x/term"
 )
 
-type Awswitch struct {
+type Axolotl struct {
 	Debug              bool
 	autoGimmeAwsCreds  bool
 	awsCredentialsFile *vault.CredentialsFile
 }
 
-func (a *Awswitch) AwsCredentialsFile() (*vault.CredentialsFile, error) {
+func (a *Axolotl) AwsCredentialsFile() (*vault.CredentialsFile, error) {
 	if a.awsCredentialsFile == nil {
 		var err error
 		a.awsCredentialsFile, err = vault.LoadCredentialsFromEnv()
@@ -34,7 +34,7 @@ func (a *Awswitch) AwsCredentialsFile() (*vault.CredentialsFile, error) {
 	return a.awsCredentialsFile, nil
 }
 
-func (a *Awswitch) MustGetProfileNames() []string {
+func (a *Axolotl) MustGetProfileNames() []string {
 	creds, err := a.AwsCredentialsFile()
 	if err != nil {
 		log.Fatalf("Error loading AWS credentials: %s", err.Error())
@@ -125,7 +125,7 @@ func AuthGimmeAwsCreds() error {
 }
 
 // ConfigureGlobals sets up the global flags and returns the global config
-func ConfigureGlobals(app *kingpin.Application) *Awswitch {
+func ConfigureGlobals(app *kingpin.Application) *Axolotl {
 	// Load config from file
 	if err := viper.ReadInConfig(); err != nil {
 		log.Printf("fatal error config file: %v", err)
@@ -133,7 +133,7 @@ func ConfigureGlobals(app *kingpin.Application) *Awswitch {
 
 	viper.GetBool("autoGimmeAwsCreds")
 
-	a := &Awswitch{
+	a := &Axolotl{
 		autoGimmeAwsCreds: viper.GetBool("autoGimmeAwsCreds"),
 	}
 
@@ -156,7 +156,7 @@ func ConfigureGlobals(app *kingpin.Application) *Awswitch {
 			log.SetOutput(io.Discard)
 		}
 
-		log.Printf("awswitch %s", app.Model().Version)
+		log.Printf("Axolotl %s", app.Model().Version)
 
 		if noVerify {
 			viper.Set("autoGimmeAwsCreds", false)
@@ -224,7 +224,7 @@ func restoreTermState() {
 }
 
 // profileCompleter returns a list of profile names
-func (a *Awswitch) profileCompleter() func(d prompt.Document) []prompt.Suggest {
+func (a *Axolotl) profileCompleter() func(d prompt.Document) []prompt.Suggest {
 	return func(d prompt.Document) []prompt.Suggest {
 		s := []prompt.Suggest{}
 		for _, p := range a.MustGetProfileNames() {

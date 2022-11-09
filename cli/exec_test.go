@@ -3,13 +3,13 @@ package cli_test
 import (
 	"testing"
 
-	"github.com/ArcadiaPower/awswitch/cli"
+	"github.com/ArcadiaPower/axolotl/cli"
 	"github.com/alecthomas/kingpin"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestExecCommand(t *testing.T) {
-	app := kingpin.New("awswitch", "")
+	app := kingpin.New("ax", "")
 	a := cli.ConfigureGlobals(app)
 	cli.ConfigureExecCommand(app, a)
 	_, err := app.Parse([]string{
