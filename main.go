@@ -6,20 +6,20 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ArcadiaPower/awswitch/cli"
+	"github.com/ArcadiaPower/axolotl/cli"
 	"github.com/spf13/viper"
 
 	"github.com/alecthomas/kingpin"
 )
 
 // Version is provided at compile time
-var Version string
+var Version = "devel"
 
 func init() {
 	// initialize viper config
 	configName := "config"
 	configType := "yaml"
-	configPath := os.ExpandEnv("${HOME}/.config/awswitch")
+	configPath := os.ExpandEnv("${HOME}/.config/ax")
 
 	viper.AddConfigPath(configPath)
 	viper.SetConfigName(configName)
@@ -43,7 +43,7 @@ func init() {
 }
 
 func main() {
-	app := kingpin.New("awswitch", "A helper utility for switching AWS profiles in subshells.")
+	app := kingpin.New("ax", "A helper utility for switching AWS profiles in subshells.")
 	app.Version(Version)
 
 	a := cli.ConfigureGlobals(app)

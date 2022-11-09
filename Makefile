@@ -4,10 +4,10 @@ SRC=$(shell find . -name '*.go') go.mod
 INSTALL_DIR ?= ~/.bin
 .PHONY: install
 
-awswitch: $(SRC)
+ax: $(SRC)
 	go build -ldflags="-X main.Version=$(VERSION)" -o $@ .
 
-install: awswitch
+install: ax
 	mkdir -p $(INSTALL_DIR)
-	rm -f $(INSTALL_DIR)/awswitch
-	cp -a ./awswitch $(INSTALL_DIR)/awswitch
+	rm -f $(INSTALL_DIR)/ax
+	cp -a ./ax $(INSTALL_DIR)/ax

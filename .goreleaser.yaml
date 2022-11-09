@@ -1,6 +1,6 @@
 builds:
   - id: linux-build
-    binary: awswitch
+    binary: ax
     goos:
       - linux
     goarch:
@@ -14,10 +14,10 @@ builds:
       -w
       -s
       -extldflags '-static'
-      -X github.com/ArcadiaPower/awswitch/main.version={{.Version}}
+      -X github.com/ArcadiaPower/axolotl/main.Version={{.Version}}
 
   - id: darwin-build
-    binary: awswitch
+    binary: ax
     goos:
       - darwin
     goarch:
@@ -37,7 +37,7 @@ archives:
       - darwin-build
 
 brews:
-  - name: awswitch
+  - name: ax
 
     ids:
       - darwin-archives
@@ -51,9 +51,9 @@ brews:
 
     commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
 
-    caveats: "To install shell completion add the following line to your #{shell_profile}:\n\tBASH:\n\teval \"$(awswitch --completion-script-bash)\"\n\tZSH:\n\teval \"$(awswitch --completion-script-zsh)\"\n\nRestart your terminal for the settings to take effect."
+    caveats: "To install shell completion add the following line to your #{shell_profile}:\n\tBASH:\n\teval \"$(ax --completion-script-bash)\"\n\tZSH:\n\teval \"$(ax --completion-script-zsh)\"\n\nRestart your terminal for the settings to take effect."
 
-    homepage: "https://github.com/ArcadiaPower/awswitch/"
+    homepage: "https://github.com/ArcadiaPower/axolotl/"
 
     description: "A helper utility for switching AWS profiles in subshells."
 
@@ -64,4 +64,4 @@ brews:
       - name: gimme-aws-creds
 
     test: |
-      system "#{bin}/awswitch --version"
+      system "#{bin}/ax --version"
