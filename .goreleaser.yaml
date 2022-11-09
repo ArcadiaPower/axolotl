@@ -1,3 +1,6 @@
+universal_binaries:
+- replace: true
+
 builds:
   - id: linux-build
     binary: ax
@@ -38,10 +41,6 @@ archives:
 
 brews:
   - name: axolotl
-
-    ids:
-      - darwin-archives
-      - linux-archives
 
     goamd64: v3
 
