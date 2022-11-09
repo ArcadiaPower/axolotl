@@ -1,6 +1,3 @@
-universal_binaries:
-- replace: true
-
 builds:
   - id: linux-build
     binary: ax
@@ -29,6 +26,11 @@ builds:
     mod_timestamp: *build-timestamp
     env: *build-env
     ldflags: *build-ldflags
+
+universal_binaries:
+- ids:
+  - darwin-build
+- replace: true
 
 archives:
   - id: linux-archives
