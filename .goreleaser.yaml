@@ -37,7 +37,7 @@ archives:
       - darwin-build
 
 brews:
-  - name: ax
+  - name: axolotl
 
     ids:
       - darwin-archives
