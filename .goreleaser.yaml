@@ -14,7 +14,7 @@ builds:
       -w
       -s
       -extldflags '-static'
-      -X github.com/ArcadiaPower/axolotl/main.Version={{.Version}}
+      -X main.Version={{.Version}}
 
   - id: darwin-build
     binary: ax
