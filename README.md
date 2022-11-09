@@ -1,5 +1,7 @@
 # axolotl
 
+![_Axolotl_](https://i.imgur.com/wcOZg4d.jpg)
+
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/ArcadiaPower/axolotl?style=for-the-badge)![GitHub release (latest by date)](https://img.shields.io/github/v/release/ArcadiaPower/axolotl?style=for-the-badge)![GitHub](https://img.shields.io/github/license/ArcadiaPower/axolotl?style=for-the-badge)
 
 axolotl (`ax`) is an opinionated CLI that minimally emulates the behavior of the `aws-vault exec` command to run ad-hoc commands or switch to a subshell of a specific AWS profiles on the fly.
