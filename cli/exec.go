@@ -61,6 +61,7 @@ func ExecCommand(input ExecCommandInput) error {
 	env := environ(os.Environ())
 	env.Set("AWS_DEFAULT_PROFILE", input.ProfileName)
 	env.Set("AWS_PROFILE", input.ProfileName)
+	env.Set("AWS_DEFAULT_REGION", input.Region)
 	env.Set("AWS_REGION", input.Region)
 	env.Set("AWS_AXOLOTL", "42")
 
