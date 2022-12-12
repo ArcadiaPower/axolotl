@@ -35,6 +35,7 @@ Note: Installing with homebrew has the added benefit of automatically installing
 
 The configuration file is created automatically at `$HOME/.config/ax/config.yaml` if it doesn't already exist. 
 - autogimmeawscreds - This enables automatic credential verification and acquisition with `gimme-aws-creds`, the default is true.
+- defaultregion - This sets the default AWS region that will be used, the default is `us-east-1`.
 
 ## Usage
 
@@ -43,7 +44,7 @@ To switch to a named profile and the default AWS Region of `us-east-1`:
 ax --profile example-staging
 ```
 
-To switch to a named profile and a custom AWS Region:
+To switch to a named profile and a specific AWS Region:
 ```bash
 ax --profile example-staging --region us-west-2
 ```
@@ -55,6 +56,13 @@ ax -p example-staging -r us-west-2
 
 Execute a single command using a named profile:
 ```bash
+ax -p example-staging -- aws sts get-caller-identity
+```
+
+Change the default region to `us-west-2` and execute a single command using a named profile without having to specify the region:
+```bash
+ax --default-region us-west-2
+
 ax -p example-staging -- aws sts get-caller-identity
 ```
 

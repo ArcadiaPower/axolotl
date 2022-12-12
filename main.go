@@ -27,6 +27,7 @@ func init() {
 
 	// set default values
 	viper.SetDefault("autoGimmeAwsCreds", true)
+	viper.SetDefault("defaultRegion", "us-east-1")
 
 	configFile := filepath.Join(configPath, fmt.Sprintf("%s.%s", configName, configType))
 

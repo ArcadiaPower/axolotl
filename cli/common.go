@@ -19,6 +19,7 @@ import (
 type Axolotl struct {
 	Debug              bool
 	autoGimmeAwsCreds  bool
+	defaultRegion      string
 	awsCredentialsFile *vault.CredentialsFile
 }
 
@@ -132,14 +133,17 @@ func ConfigureGlobals(app *kingpin.Application) *Axolotl {
 	}
 
 	viper.GetBool("autoGimmeAwsCreds")
+	viper.GetString("defaultRegion")
 
 	a := &Axolotl{
 		autoGimmeAwsCreds: viper.GetBool("autoGimmeAwsCreds"),
+		defaultRegion:     viper.GetString("defaultRegion"),
 	}
 
 	var (
-		noVerify bool
-		verify   bool
+		noVerify      bool
+		verify        bool
+		defaultRegion string
 	)
 
 	app.Flag("debug", "Show debugging output").
@@ -150,6 +154,9 @@ func ConfigureGlobals(app *kingpin.Application) *Axolotl {
 
 	app.Flag("no-verify", "Disable automatic credentials with `gimme-aws-creds`").
 		BoolVar(&noVerify)
+
+	app.Flag("default-region", "Set default AWS region").
+		StringVar(&defaultRegion)
 
 	app.PreAction(func(c *kingpin.ParseContext) error {
 		if !a.Debug {
@@ -173,6 +180,15 @@ func ConfigureGlobals(app *kingpin.Application) *Axolotl {
 				log.Fatalf("error writing config: %s", err.Error())
 			}
 			fmt.Println("Enabled automatic credentials with gimme-aws-creds")
+			os.Exit(0)
+		}
+
+		if defaultRegion != "" {
+			viper.Set("defaultRegion", defaultRegion)
+			if err := viper.WriteConfig(); err != nil {
+				log.Fatalf("error writing config: %s", err.Error())
+			}
+			fmt.Println("Set default region to", defaultRegion)
 			os.Exit(0)
 		}
 
