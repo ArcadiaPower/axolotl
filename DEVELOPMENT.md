@@ -14,7 +14,7 @@ Currently the project is only tested on macOS and Linux. It may work on Windows 
 
 There's a simple Makefile in the root of the project to help with local testing. By running `make install` you can install the binary to your `$HOME/.bin` directory. If you have this directory added to your `$PATH` you can then run the local build of `ax` from anywhere on your system.
 
-Note: In addition to placing a copy of the binary at `$HOME/.bin/ax`, the Makefile also previously built the binary in the root of the repo. So if you don't have or want `$HOME/.bin` in your `$PATH`, you can still run the local build of `ax` by running `./ax` from the root of the repo.
+> **Note** In addition to placing a copy of the binary at `$HOME/.bin/ax`, the Makefile also previously built the binary in the root of the repo. So if you don't have or want `$HOME/.bin` in your `$PATH`, you can still run the local build of `ax` by running `./ax` from the root of the repo.
 
 To verify the installed binary is the local build, run `ax --version` and you should see a version number matching the latest release appended with `-dirty`. ex: `v1.x.x-dirty`
 
