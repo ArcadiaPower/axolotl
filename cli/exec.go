@@ -16,6 +16,7 @@ type ExecCommandInput struct {
 	Command     string
 	Args        []string
 	Verify      bool
+	AutoRegion  bool
 }
 
 func ConfigureExecCommand(app *kingpin.Application, a *Axolotl) {
@@ -29,7 +30,7 @@ func ConfigureExecCommand(app *kingpin.Application, a *Axolotl) {
 		StringVar(&input.ProfileName)
 
 	app.Flag("region", "The AWS region to execute to").
-		Default("us-east-1").
+		Default(a.defaultRegion).
 		Short('r').
 		HintOptions("us-east-1", "us-west-2").
 		StringVar(&input.Region)
