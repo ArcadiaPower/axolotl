@@ -12,14 +12,19 @@ import (
 	osexec "golang.org/x/sys/execabs"
 )
 
+// Profile represents a profile mapping between AWS and gimme-aws-creds profiles
+type Profile struct {
+	AWS           string // AWS profile name
+	GimmeAWSCreds string // gimme-aws-creds profile name
+}
+
 type ExecCommandInput struct {
-	AWSProfileName string
-	GACProfileName string
-	Region         string
-	Command        string
-	Args           []string
-	Verify         bool
-	AutoRegion     bool
+	Profile    Profile
+	Region     string
+	Command    string
+	Args       []string
+	Verify     bool
+	AutoRegion bool
 }
 
 func ConfigureExecCommand(app *kingpin.Application, a *Axolotl) {
@@ -30,7 +35,7 @@ func ConfigureExecCommand(app *kingpin.Application, a *Axolotl) {
 	app.Flag("profile", "The AWS profile to execute as").
 		Short('p').
 		HintAction(a.MustGetAWSProfileNames).
-		StringVar(&input.AWSProfileName)
+		StringVar(&input.Profile.AWS)
 
 	app.Flag("region", "The AWS region to execute to").
 		Default(a.defaultRegion).
@@ -50,28 +55,28 @@ func ConfigureExecCommand(app *kingpin.Application, a *Axolotl) {
 			return fmt.Errorf("ax sessions should be nested with care, unset AWS_AXOLOTL to force")
 		}
 
-		if input.AWSProfileName == "" {
+		if input.Profile.AWS == "" {
 			saveTermState()
 			fmt.Println("Please select AWS profile.")
-			input.AWSProfileName = prompt.Input("> ", a.awsProfileCompleter())
+			input.Profile.AWS = prompt.Input("> ", a.awsProfileCompleter())
 			restoreTermState()
 		}
 
 		var ok bool
-		input.GACProfileName, ok = a.profiles[input.AWSProfileName]
+		input.Profile.GimmeAWSCreds, ok = a.profiles[input.Profile.AWS]
 		if !ok {
 			gacProfiles := a.MustGetGACProfileNames()
 			if len(gacProfiles) == 1 {
-				input.GACProfileName = gacProfiles[0]
+				input.Profile.GimmeAWSCreds = gacProfiles[0]
 			} else {
 				saveTermState()
 				fmt.Println("Please select gimme-aws-creds profile.")
-				input.GACProfileName = prompt.Input("> ", a.gacProfileCompleter())
+				input.Profile.GimmeAWSCreds = prompt.Input("> ", a.gacProfileCompleter())
 				restoreTermState()
 			}
 
 			// save the mapping for next time
-			a.profiles[input.AWSProfileName] = input.GACProfileName
+			a.profiles[input.Profile.AWS] = input.Profile.GimmeAWSCreds
 			viper.Set("profiles", a.profiles)
 			if err := viper.WriteConfig(); err != nil {
 				log.Fatalf("error writing config file: %s", err.Error())
@@ -84,13 +89,13 @@ func ConfigureExecCommand(app *kingpin.Application, a *Axolotl) {
 
 func ExecCommand(input ExecCommandInput) error {
 	env := environ(os.Environ())
-	env.Set("AWS_DEFAULT_PROFILE", input.AWSProfileName)
-	env.Set("AWS_PROFILE", input.AWSProfileName)
+	env.Set("AWS_DEFAULT_PROFILE", input.Profile.AWS)
+	env.Set("AWS_PROFILE", input.Profile.AWS)
 	env.Set("AWS_DEFAULT_REGION", input.Region)
 	env.Set("AWS_REGION", input.Region)
 	env.Set("AWS_AXOLOTL", "42")
 
-	if err := AuthVerify(input.Verify, input.AWSProfileName, input.GACProfileName); err != nil {
+	if err := AuthVerify(input.Verify, input.Profile); err != nil {
 		return err
 	}
 

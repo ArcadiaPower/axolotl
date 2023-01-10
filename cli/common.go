@@ -84,7 +84,7 @@ func (a *Axolotl) MustGetGACProfileNames() []string {
 
 // AuthVerify checks if the user is authenticated and if not authenticates
 // with gimme-aws-creds
-func AuthVerify(enabled bool, awsProfileName, gacProfile string) error {
+func AuthVerify(enabled bool, profile Profile) error {
 	if !enabled {
 		return nil
 	}
@@ -108,7 +108,7 @@ func AuthVerify(enabled bool, awsProfileName, gacProfile string) error {
 			os.Setenv(strings.Split(e, "=")[0], strings.Split(e, "=")[1])
 		}
 	}
-	os.Setenv("AWS_PROFILE", awsProfileName)
+	os.Setenv("AWS_PROFILE", profile.AWS)
 
 	// Check if we are authenticated by running aws sts get-caller-identity
 	// If we are not authenticated, we will get an error
@@ -128,7 +128,7 @@ func AuthVerify(enabled bool, awsProfileName, gacProfile string) error {
 	}
 
 	// If we are not authenticated, we will run gimme-aws-creds
-	return AuthGimmeAwsCreds(gacProfile)
+	return AuthGimmeAwsCreds(profile.GimmeAWSCreds)
 }
 
 // AuthGimmeAwsCreds authenticates with gimme-aws-creds
