@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"log"
@@ -21,6 +22,7 @@ type Axolotl struct {
 	autoGimmeAwsCreds  bool
 	defaultRegion      string
 	awsCredentialsFile *vault.CredentialsFile
+	profiles           map[string]string
 }
 
 func (a *Axolotl) AwsCredentialsFile() (*vault.CredentialsFile, error) {
@@ -35,7 +37,9 @@ func (a *Axolotl) AwsCredentialsFile() (*vault.CredentialsFile, error) {
 	return a.awsCredentialsFile, nil
 }
 
-func (a *Axolotl) MustGetProfileNames() []string {
+// MustGetAWSProfileNames returns a list of AWS profile names
+// based on the contents of the local credentials file
+func (a *Axolotl) MustGetAWSProfileNames() []string {
 	creds, err := a.AwsCredentialsFile()
 	if err != nil {
 		log.Fatalf("Error loading AWS credentials: %s", err.Error())
@@ -52,9 +56,35 @@ func (a *Axolotl) MustGetProfileNames() []string {
 	return profileNames
 }
 
+// MustGetGACProfileNames returns a list of gimme-aws-creds profile names
+func (a *Axolotl) MustGetGACProfileNames() []string {
+	// Verify .okta_aws_login_config exists
+	if _, err := os.Stat(filepath.Join(os.Getenv("HOME"), ".okta_aws_login_config")); os.IsNotExist(err) {
+		log.Fatalf(os.ExpandEnv("unable to locate .okta_aws_login_config in ${HOME}, please create it: %s\n\n\thttps://github.com/Nike-Inc/gimme-aws-creds#configuration"), err.Error())
+	}
+
+	// Parse .okta_aws_login_config for profile names
+	f, err := os.Open(filepath.Join(os.Getenv("HOME"), ".okta_aws_login_config"))
+	if err != nil {
+		log.Fatalf("unable to open .okta_aws_login_config: %s", err.Error())
+	}
+	defer f.Close()
+
+	profileNames := []string{}
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "[") && strings.HasSuffix(line, "]") {
+			profileNames = append(profileNames, strings.Trim(line, "[]"))
+		}
+	}
+
+	return profileNames
+}
+
 // AuthVerify checks if the user is authenticated and if not authenticates
 // with gimme-aws-creds
-func AuthVerify(enabled bool, profileName string) error {
+func AuthVerify(enabled bool, awsProfileName, gacProfile string) error {
 	if !enabled {
 		return nil
 	}
@@ -78,7 +108,7 @@ func AuthVerify(enabled bool, profileName string) error {
 			os.Setenv(strings.Split(e, "=")[0], strings.Split(e, "=")[1])
 		}
 	}
-	os.Setenv("AWS_PROFILE", profileName)
+	os.Setenv("AWS_PROFILE", awsProfileName)
 
 	// Check if we are authenticated by running aws sts get-caller-identity
 	// If we are not authenticated, we will get an error
@@ -98,11 +128,11 @@ func AuthVerify(enabled bool, profileName string) error {
 	}
 
 	// If we are not authenticated, we will run gimme-aws-creds
-	return AuthGimmeAwsCreds()
+	return AuthGimmeAwsCreds(gacProfile)
 }
 
 // AuthGimmeAwsCreds authenticates with gimme-aws-creds
-func AuthGimmeAwsCreds() error {
+func AuthGimmeAwsCreds(gacProfile string) error {
 	// Check if gimme-aws-creds is installed
 	if _, err := exec.LookPath("gimme-aws-creds"); err != nil {
 		return fmt.Errorf("unable to locate `gimme-aws-creds` in PATH, please install it: %w\n\n\thttps://github.com/Nike-Inc/gimme-aws-creds#installation", err)
@@ -114,7 +144,7 @@ func AuthGimmeAwsCreds() error {
 	}
 
 	// execute gimme-aws-creds
-	cmd := exec.Command("gimme-aws-creds")
+	cmd := exec.Command("gimme-aws-creds", "--profile", gacProfile)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
@@ -134,10 +164,12 @@ func ConfigureGlobals(app *kingpin.Application) *Axolotl {
 
 	viper.GetBool("autoGimmeAwsCreds")
 	viper.GetString("defaultRegion")
+	viper.GetStringMapString("profiles")
 
 	a := &Axolotl{
 		autoGimmeAwsCreds: viper.GetBool("autoGimmeAwsCreds"),
 		defaultRegion:     viper.GetString("defaultRegion"),
+		profiles:          viper.GetStringMapString("profiles"),
 	}
 
 	var (
@@ -239,11 +271,22 @@ func restoreTermState() {
 	}
 }
 
-// profileCompleter returns a list of profile names
-func (a *Axolotl) profileCompleter() func(d prompt.Document) []prompt.Suggest {
+// awsProfileCompleter returns a list of AWS profile names
+func (a *Axolotl) awsProfileCompleter() func(d prompt.Document) []prompt.Suggest {
 	return func(d prompt.Document) []prompt.Suggest {
 		s := []prompt.Suggest{}
-		for _, p := range a.MustGetProfileNames() {
+		for _, p := range a.MustGetAWSProfileNames() {
+			s = append(s, prompt.Suggest{Text: p})
+		}
+		return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
+	}
+}
+
+// gacProfileCompleter returns a list of gimme-aws-creds profile names
+func (a *Axolotl) gacProfileCompleter() func(d prompt.Document) []prompt.Suggest {
+	return func(d prompt.Document) []prompt.Suggest {
+		s := []prompt.Suggest{}
+		for _, p := range a.MustGetGACProfileNames() {
 			s = append(s, prompt.Suggest{Text: p})
 		}
 		return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)

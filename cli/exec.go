@@ -2,21 +2,24 @@ package cli
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"syscall"
 
 	"github.com/alecthomas/kingpin"
 	"github.com/c-bata/go-prompt"
+	"github.com/spf13/viper"
 	osexec "golang.org/x/sys/execabs"
 )
 
 type ExecCommandInput struct {
-	ProfileName string
-	Region      string
-	Command     string
-	Args        []string
-	Verify      bool
-	AutoRegion  bool
+	AWSProfileName string
+	GACProfileName string
+	Region         string
+	Command        string
+	Args           []string
+	Verify         bool
+	AutoRegion     bool
 }
 
 func ConfigureExecCommand(app *kingpin.Application, a *Axolotl) {
@@ -26,8 +29,8 @@ func ConfigureExecCommand(app *kingpin.Application, a *Axolotl) {
 
 	app.Flag("profile", "The AWS profile to execute as").
 		Short('p').
-		HintAction(a.MustGetProfileNames).
-		StringVar(&input.ProfileName)
+		HintAction(a.MustGetAWSProfileNames).
+		StringVar(&input.AWSProfileName)
 
 	app.Flag("region", "The AWS region to execute to").
 		Default(a.defaultRegion).
@@ -47,11 +50,32 @@ func ConfigureExecCommand(app *kingpin.Application, a *Axolotl) {
 			return fmt.Errorf("ax sessions should be nested with care, unset AWS_AXOLOTL to force")
 		}
 
-		if input.ProfileName == "" {
+		if input.AWSProfileName == "" {
 			saveTermState()
-			fmt.Println("Please select profile.")
-			input.ProfileName = prompt.Input("> ", a.profileCompleter())
+			fmt.Println("Please select AWS profile.")
+			input.AWSProfileName = prompt.Input("> ", a.awsProfileCompleter())
 			restoreTermState()
+		}
+
+		var ok bool
+		input.GACProfileName, ok = a.profiles[input.AWSProfileName]
+		if !ok {
+			gacProfiles := a.MustGetGACProfileNames()
+			if len(gacProfiles) == 1 {
+				input.GACProfileName = gacProfiles[0]
+			} else {
+				saveTermState()
+				fmt.Println("Please select gimme-aws-creds profile.")
+				input.GACProfileName = prompt.Input("> ", a.gacProfileCompleter())
+				restoreTermState()
+			}
+
+			// save the mapping for next time
+			a.profiles[input.AWSProfileName] = input.GACProfileName
+			viper.Set("profiles", a.profiles)
+			if err := viper.WriteConfig(); err != nil {
+				log.Fatalf("error writing config file: %s", err.Error())
+			}
 		}
 
 		return ExecCommand(input)
@@ -60,13 +84,13 @@ func ConfigureExecCommand(app *kingpin.Application, a *Axolotl) {
 
 func ExecCommand(input ExecCommandInput) error {
 	env := environ(os.Environ())
-	env.Set("AWS_DEFAULT_PROFILE", input.ProfileName)
-	env.Set("AWS_PROFILE", input.ProfileName)
+	env.Set("AWS_DEFAULT_PROFILE", input.AWSProfileName)
+	env.Set("AWS_PROFILE", input.AWSProfileName)
 	env.Set("AWS_DEFAULT_REGION", input.Region)
 	env.Set("AWS_REGION", input.Region)
 	env.Set("AWS_AXOLOTL", "42")
 
-	if err := AuthVerify(input.Verify, input.ProfileName); err != nil {
+	if err := AuthVerify(input.Verify, input.AWSProfileName, input.GACProfileName); err != nil {
 		return err
 	}
 
