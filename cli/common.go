@@ -89,15 +89,24 @@ func AuthVerify(enabled bool, profile Profile) error {
 		return nil
 	}
 
-	// TODO: This is really ugly and adds a performance hit for the aws cli call
-	// but there isn't a better way to verify credentials UNLESS this PR is merged
-	// to gimme-aws-creds: https://github.com/Nike-Inc/gimme-aws-creds/pull/300
-
 	// Check if aws cli is installed
 	if _, err := exec.LookPath("aws"); err != nil {
 		return fmt.Errorf("unable to locate `aws` in PATH, please install it: %w", err)
 	}
 
+	if canAuth(profile) {
+		return nil
+	}
+
+	// If we are not authenticated, we will run gimme-aws-creds
+	return AuthGimmeAwsCreds(profile)
+}
+
+// canAuth checks if the user is authenticated with the given profile
+// TODO: This is really ugly and adds a performance hit for the aws cli call
+// but there isn't a better way to verify credentials UNLESS this PR is merged
+// to gimme-aws-creds: https://github.com/Nike-Inc/gimme-aws-creds/pull/300
+func canAuth(profile Profile) bool {
 	// Temporarily set AWS_PROFILE to the profile we want to check
 	// so that we can use the aws cli to check if we are authenticated
 	// with the profile
@@ -124,15 +133,13 @@ func AuthVerify(enabled bool, profile Profile) error {
 	}
 
 	if err == nil {
-		return nil
+		return true
 	}
-
-	// If we are not authenticated, we will run gimme-aws-creds
-	return AuthGimmeAwsCreds(profile.GimmeAWSCreds)
+	return false
 }
 
 // AuthGimmeAwsCreds authenticates with gimme-aws-creds
-func AuthGimmeAwsCreds(gacProfile string) error {
+func AuthGimmeAwsCreds(profile Profile) error {
 	// Check if gimme-aws-creds is installed
 	if _, err := exec.LookPath("gimme-aws-creds"); err != nil {
 		return fmt.Errorf("unable to locate `gimme-aws-creds` in PATH, please install it: %w\n\n\thttps://github.com/Nike-Inc/gimme-aws-creds#installation", err)
@@ -144,7 +151,7 @@ func AuthGimmeAwsCreds(gacProfile string) error {
 	}
 
 	// execute gimme-aws-creds
-	cmd := exec.Command("gimme-aws-creds", "--profile", gacProfile)
+	cmd := exec.Command("gimme-aws-creds", "--profile", profile.GimmeAWSCreds)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
@@ -152,7 +159,19 @@ func AuthGimmeAwsCreds(gacProfile string) error {
 		return fmt.Errorf("unable to execute `gimme-aws-creds`: %w", err)
 	}
 
-	return nil
+	// Verify we are authenticated to AWS now that we have run gimme-aws-creds
+	if canAuth(profile) {
+		return nil
+	}
+
+	home, err := os.UserHomeDir()
+	if err != nil {
+		home = "~"
+	}
+
+	// TODO: It might be worthwhile to try and handle this case better if enough
+	// people run into it. For now, let's just return an error.
+	return fmt.Errorf("unable to authenticate to AWS with profile %s. Check %s/.aws/credentials to ensure this profile exists", profile.AWS, home)
 }
 
 // ConfigureGlobals sets up the global flags and returns the global config
