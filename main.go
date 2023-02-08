@@ -50,5 +50,6 @@ func main() {
 	a := cli.ConfigureGlobals(app)
 	cli.ConfigureExecCommand(app, a)
 
-	kingpin.MustParse(app.Parse(os.Args[1:]))
+	_, err := app.Parse(os.Args[1:])
+	kingpin.FatalIfError(err, "")
 }
