@@ -123,10 +123,10 @@ func canAuth(profile Profile) bool {
 	// If we are not authenticated, we will get an error
 	// If we are authenticated, we will get a json response
 	// We will ignore the json response
-	// restore environment
 	cmd := exec.Command("aws", "sts", "get-caller-identity")
 	err := cmd.Run()
 
+	// restore environment
 	os.Clearenv()
 	for _, e := range origEnv {
 		os.Setenv(strings.Split(e, "=")[0], strings.Split(e, "=")[1])

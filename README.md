@@ -1,6 +1,6 @@
 # axolotl
 
-![_Axolotl_](https://i.imgur.com/wcOZg4d.jpg)
+![_Axolotl_](https://user-images.githubusercontent.com/6409227/217604228-17b830df-1069-4e4e-b8fc-8b164de32233.png)
 
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/ArcadiaPower/axolotl?style=for-the-badge)![GitHub release (latest by date)](https://img.shields.io/github/v/release/ArcadiaPower/axolotl?style=for-the-badge)![GitHub](https://img.shields.io/github/license/ArcadiaPower/axolotl?style=for-the-badge)
 
