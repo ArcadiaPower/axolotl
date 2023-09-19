@@ -46,15 +46,19 @@ archives:
       - linux-amd64-build
       - linux-arm64-build
       - darwin-build
-    replacements:
-      darwin: macOS
-      amd64: x86_64
-      all: universal
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{- if eq .Os "darwin" -}}
+      macOS_{{- else -}}{{ .Os }}_{{- end -}}
+      {{- if eq .Arch "amd64" -}}x86_64{{- else if eq .Arch "all" -}}
+      universal{{- else -}}{{ .Arch }}{{- end -}}
+      {{- with .Arm }}v{{ . }}{{ end -}}
+      {{- with .Mips }}_{{ . }}{{ end -}}
+      {{- if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}
 
 brews:
   - name: axolotl
 
-    tap:
+    repository:
       owner: ArcadiaPower
       name: homebrew-tap
 
