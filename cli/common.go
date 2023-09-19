@@ -140,38 +140,27 @@ func canAuth(profile Profile) bool {
 
 // AuthGimmeAwsCreds authenticates with gimme-aws-creds
 func AuthGimmeAwsCreds(profile Profile) error {
-	// Check if gimme-aws-creds is installed
-	if _, err := exec.LookPath("gimme-aws-creds"); err != nil {
-		return fmt.Errorf("unable to locate `gimme-aws-creds` in PATH, please install it: %w\n\n\thttps://github.com/Nike-Inc/gimme-aws-creds#installation", err)
+	if err := checkGimmeAwsCredsInstallation(); err != nil {
+		return err
 	}
 
-	// Verify .okta_aws_login_config exists
-	if _, err := os.Stat(filepath.Join(os.Getenv("HOME"), ".okta_aws_login_config")); os.IsNotExist(err) {
-		return fmt.Errorf(os.ExpandEnv("unable to locate .okta_aws_login_config in ${HOME}, please create it: %w\n\n\thttps://github.com/Nike-Inc/gimme-aws-creds#configuration"), err)
+	if err := verifyConfigFileExists(); err != nil {
+		return err
 	}
 
-	// execute gimme-aws-creds
-	cmd := exec.Command("gimme-aws-creds", "--profile", profile.GimmeAWSCreds)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("unable to execute `gimme-aws-creds`: %w", err)
+	if err := executeGimmeAwsCreds(profile); err != nil {
+		return err
 	}
 
-	// Verify we are authenticated to AWS now that we have run gimme-aws-creds
-	if canAuth(profile) {
-		return nil
+	if !canAuth(profile) {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			home = "~"
+		}
+		return fmt.Errorf("unable to authenticate to AWS with profile %s. Check %s/.aws/credentials to ensure this profile exists", profile.AWS, home)
 	}
 
-	home, err := os.UserHomeDir()
-	if err != nil {
-		home = "~"
-	}
-
-	// TODO: It might be worthwhile to try and handle this case better if enough
-	// people run into it. For now, let's just return an error.
-	return fmt.Errorf("unable to authenticate to AWS with profile %s. Check %s/.aws/credentials to ensure this profile exists", profile.AWS, home)
+	return nil
 }
 
 // ConfigureGlobals sets up the global flags and returns the global config
@@ -183,6 +172,7 @@ func ConfigureGlobals(app *kingpin.Application) *Axolotl {
 
 	viper.GetBool("autoGimmeAwsCreds")
 	viper.GetString("defaultRegion")
+	viper.GetBool("oie")
 	viper.GetStringMapString("profiles")
 
 	a := &Axolotl{
