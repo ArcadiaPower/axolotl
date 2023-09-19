@@ -172,7 +172,6 @@ func ConfigureGlobals(app *kingpin.Application) *Axolotl {
 
 	viper.GetBool("autoGimmeAwsCreds")
 	viper.GetString("defaultRegion")
-	viper.GetBool("oie")
 	viper.GetStringMapString("profiles")
 
 	a := &Axolotl{
